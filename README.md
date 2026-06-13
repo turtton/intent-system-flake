@@ -37,13 +37,15 @@ This builds the package and runs a smoke test that verifies `intent-cli --versio
 
 ## Automated updates
 
-A GitHub Actions workflow (`.github/workflows/update-upstream.yml`) checks for upstream `intent-system` changes daily and opens a pull request when:
+A GitHub Actions workflow (`.github/workflows/update-upstream.yml`) checks for upstream `intent-system` changes daily and opens a pull request when files actually change and the update passes verification:
 
-- `flake.lock` has a newer upstream revision
-- `nuget-deps.json` needs to be regenerated
+- `flake.lock` is updated to the latest upstream revision
+- `nuget-deps.json` is regenerated if needed
 - `nix flake check` passes
 
 You can also trigger the workflow manually from the Actions tab.
+
+> **Note:** The repository setting "Allow GitHub Actions to create and approve pull requests" must be enabled for the workflow to open PRs.
 
 ## Files
 

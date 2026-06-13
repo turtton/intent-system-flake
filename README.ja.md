@@ -37,13 +37,15 @@ nix flake check github:turtton/intent-system-flake
 
 ## 自動更新
 
-GitHub Actions ワークフロー（`.github/workflows/update-upstream.yml`）が、毎日上流 `intent-system` の更新を確認し、以下の条件を満たす場合にプルリクエストを作成します。
+GitHub Actions ワークフロー（`.github/workflows/update-upstream.yml`）が、毎日上流 `intent-system` の更新を確認し、ファイルに差分があり、更新の検証に成功した場合にプルリクエストを作成します。
 
-- `flake.lock` の上流リビジョンが更新されている
-- `nuget-deps.json` の再生成が必要
-- `nix flake check` が通過している
+- `flake.lock` を最新の上流リビジョンに更新する
+- 必要に応じて `nuget-deps.json` を再生成する
+- `nix flake check` が通過する
 
 手動実行も Actions タブから可能です。
+
+> **注意:** ワークフローが PR を作成するには、リポジトリ設定で「GitHub Actions がプルリクエストを作成および承認することを許可する」が有効になっている必要があります。
 
 ## ファイル構成
 

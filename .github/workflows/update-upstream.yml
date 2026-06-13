@@ -5,59 +5,93 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+concurrency:
+  group: update-upstream
+  cancel-in-progress: true
+
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
+    env:
+      NIX_SYSTEM: x86_64-linux
+    outputs:
+      version: ${{ steps.metadata.outputs.version }}
+      rev: ${{ steps.metadata.outputs.rev }}
+      short_rev: ${{ steps.metadata.outputs.short_rev }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v16
+        uses: DeterminateSystems/nix-installer-action@e50d5f73bfe71c2dd0aa4218de8f4afa59f8f81d
 
       - name: Set up Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@v8
+        uses: DeterminateSystems/magic-nix-cache-action@87b14cf437d03d37989d87f0fa5ce4f5dc1a330b
 
       - name: Update upstream flake input
-        run: nix flake lock --update-input intent-system
+        run: nix flake update intent-system
 
       - name: Regenerate NuGet dependencies
         run: |
-          nix build .#packages.x86_64-linux.default.fetch-deps
+          nix build .#packages.${{ env.NIX_SYSTEM }}.default.fetch-deps
           ./result ./nuget-deps.json
 
       - name: Collect upstream metadata
         id: metadata
         run: |
           upstream_rev=$(nix flake metadata --json . | jq -r '.locks.nodes["intent-system"].locked.rev')
-          upstream_version=$(nix eval --json .#packages.x86_64-linux.default.version | jq -r .)
+          upstream_version=$(nix eval --json .#packages.${{ env.NIX_SYSTEM }}.default.version | jq -r .)
           echo "rev=${upstream_rev}" >> "$GITHUB_OUTPUT"
+          echo "short_rev=${upstream_rev:0:7}" >> "$GITHUB_OUTPUT"
           echo "version=${upstream_version}" >> "$GITHUB_OUTPUT"
 
       - name: Verify build
         run: nix flake check
 
+      - name: Upload updated files
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: updated-files
+          path: |
+            flake.lock
+            nuget-deps.json
+
+  pr:
+    needs: update
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Download updated files
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: updated-files
+
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: update/intent-system
           commit-message: |
             Update upstream intent-system
 
-            - version: ${{ steps.metadata.outputs.version }}
-            - rev: ${{ steps.metadata.outputs.rev }}
-          title: "Update upstream intent-system to ${{ steps.metadata.outputs.version }}"
+            - version: ${{ needs.update.outputs.version }}
+            - rev: ${{ needs.update.outputs.rev }}
+          title: "Update upstream intent-system to ${{ needs.update.outputs.version }} (${{ needs.update.outputs.short_rev }})"
           body: |
             Automated update of the upstream `J-Tech-Japan/intent-system` input.
 
-            - Version: `${{ steps.metadata.outputs.version }}`
-            - Revision: `${{ steps.metadata.outputs.rev }}`
+            - Version: `${{ needs.update.outputs.version }}`
+            - Revision: `${{ needs.update.outputs.rev }}`
 
-            `flake.lock` and `nuget-deps.json` have been regenerated, and `nix flake check` passes.
-          labels: |
-            dependencies
-            automated
+            `flake.lock` has been updated, `nuget-deps.json` has been regenerated if needed, and `nix flake check` passes.
