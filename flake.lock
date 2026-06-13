@@ -1,0 +1,44 @@
+{
+  "nodes": {
+    "intent-system": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1781166009,
+        "narHash": "sha256-Y+72/PZcFcoaUKZ3Z4tai41rubWn9LQKfM6EWuyNUOE=",
+        "owner": "J-Tech-Japan",
+        "repo": "intent-system",
+        "rev": "06cfe464a835e31d689fb699bcf6ee2046d4a616",
+        "type": "github"
+      },
+      "original": {
+        "owner": "J-Tech-Japan",
+        "repo": "intent-system",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1781074563,
+        "narHash": "sha256-md8WlXOlfnIeHeOScMTTHFyf2d6iaTwPl2apR5EQ3P4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9ae611a455b90cf061d8f332b977e387bda8e1ca",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "intent-system": "intent-system",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
