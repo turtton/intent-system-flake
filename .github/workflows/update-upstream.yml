@@ -1,0 +1,63 @@
+name: Update upstream intent-system
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v16
+
+      - name: Set up Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      - name: Update upstream flake input
+        run: nix flake lock --update-input intent-system
+
+      - name: Regenerate NuGet dependencies
+        run: |
+          nix build .#packages.x86_64-linux.default.fetch-deps
+          ./result ./nuget-deps.json
+
+      - name: Collect upstream metadata
+        id: metadata
+        run: |
+          upstream_rev=$(nix flake metadata --json . | jq -r '.locks.nodes["intent-system"].locked.rev')
+          upstream_version=$(nix eval --json .#packages.x86_64-linux.default.version | jq -r .)
+          echo "rev=${upstream_rev}" >> "$GITHUB_OUTPUT"
+          echo "version=${upstream_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify build
+        run: nix flake check
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: update/intent-system
+          commit-message: |
+            Update upstream intent-system
+
+            - version: ${{ steps.metadata.outputs.version }}
+            - rev: ${{ steps.metadata.outputs.rev }}
+          title: "Update upstream intent-system to ${{ steps.metadata.outputs.version }}"
+          body: |
+            Automated update of the upstream `J-Tech-Japan/intent-system` input.
+
+            - Version: `${{ steps.metadata.outputs.version }}`
+            - Revision: `${{ steps.metadata.outputs.rev }}`
+
+            `flake.lock` and `nuget-deps.json` have been regenerated, and `nix flake check` passes.
+          labels: |
+            dependencies
+            automated

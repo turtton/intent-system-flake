@@ -35,6 +35,16 @@ nix flake check github:turtton/intent-system-flake
 
 パッケージのビルドと、`intent-cli --version` によるスモークテストを実行します。
 
+## 自動更新
+
+GitHub Actions ワークフロー（`.github/workflows/update-upstream.yml`）が、毎日上流 `intent-system` の更新を確認し、以下の条件を満たす場合にプルリクエストを作成します。
+
+- `flake.lock` の上流リビジョンが更新されている
+- `nuget-deps.json` の再生成が必要
+- `nix flake check` が通過している
+
+手動実行も Actions タブから可能です。
+
 ## ファイル構成
 
 - `flake.nix` — flake の inputs / outputs（`packages`, `apps`, `devShells`, `checks`, `formatter`）

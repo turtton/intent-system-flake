@@ -35,6 +35,16 @@ nix flake check github:turtton/intent-system-flake
 
 This builds the package and runs a smoke test that verifies `intent-cli --version`.
 
+## Automated updates
+
+A GitHub Actions workflow (`.github/workflows/update-upstream.yml`) checks for upstream `intent-system` changes daily and opens a pull request when:
+
+- `flake.lock` has a newer upstream revision
+- `nuget-deps.json` needs to be regenerated
+- `nix flake check` passes
+
+You can also trigger the workflow manually from the Actions tab.
+
 ## Files
 
 - `flake.nix` — flake inputs and outputs (`packages`, `apps`, `devShells`, `checks`, `formatter`)
