@@ -1,5 +1,7 @@
 # intent-system Nix flake
 
+[English README](./README.md)
+
 [`intent-system`](https://github.com/J-Tech-Japan/intent-system) — GitHub 上での intent-driven development 向けツール `intent-cli` — を Nix でパッケージングする flake です。
 
 ## 使い方
@@ -7,20 +9,20 @@
 ### インストールせずに実行
 
 ```bash
-nix run /path/to/intent-system-flake -- --version
+nix run github:turtton/intent-system-flake -- --version
 ```
 
 ### ビルドして使う
 
 ```bash
-nix build /path/to/intent-system-flake
+nix build github:turtton/intent-system-flake
 ./result/bin/intent-cli --version
 ```
 
 ### 開発シェルに入る
 
 ```bash
-nix develop /path/to/intent-system-flake
+nix develop github:turtton/intent-system-flake
 ```
 
 シェルには `dotnet-sdk_10` と `git` が含まれます。
@@ -28,7 +30,7 @@ nix develop /path/to/intent-system-flake
 ### チェックを実行
 
 ```bash
-nix flake check /path/to/intent-system-flake
+nix flake check github:turtton/intent-system-flake
 ```
 
 パッケージのビルドと、`intent-cli --version` によるスモークテストを実行します。
