@@ -3,11 +3,11 @@
     "intent-system": {
       "flake": false,
       "locked": {
-        "lastModified": 1791464619,
-        "narHash": "sha256-7zY93Twon8JmzzE4iMBps3MLCiQXQ1Gbmzls3P7WXQM=",
+        "lastModified": 1791668966,
+        "narHash": "sha256-u67DXlPqLQdhWHutPLve1Jq0WpY18/hSAyGX8vfZ74o=",
         "owner": "J-Tech-Japan",
         "repo": "intent-system",
-        "rev": "f32c8688f32c3f30bb7d07c326a236649807b007",
+        "rev": "821b415a50b56ab1e2b8afb225a605437a49da6b",
         "type": "github"
       },
       "original": {
